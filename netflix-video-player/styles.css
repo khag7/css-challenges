@@ -71,6 +71,8 @@ body {
   max-height: 25px;
   max-width: 25px;
   border-radius: 50%;
+  position: relative;
+  left: -2px;
 }
 
 .video-container .controls {
