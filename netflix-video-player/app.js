@@ -14,6 +14,7 @@ const maximizeButton = fullScreenButton.querySelector('.maximize');
 const minimizeButton = fullScreenButton.querySelector('.minimize');
 const progressBar = videoContainer.querySelector('.progress-bar');
 const watchedBar = videoContainer.querySelector('.watched-bar');
+const playhead = videoContainer.querySelector('.playhead');
 const timeLeft = videoContainer.querySelector('.time-remaining');
 
 let controlsTimeout;
@@ -116,10 +117,33 @@ document.addEventListener('mousemove', () => {
 
 video.addEventListener('timeupdate', updateTimeRemaining);
 
-progressBar.addEventListener('click', (event) => {
+const goToTimeByMouseX = (event) => {
   const pos = (event.pageX  - (progressBar.offsetLeft + progressBar.offsetParent.offsetLeft)) / progressBar.offsetWidth;
   video.currentTime = pos * video.duration;
+}
+
+progressBar.addEventListener('click', goToTimeByMouseX);
+
+const moveProgressBarWithMouse = (event) => {
+  const pos = (event.pageX  - (progressBar.offsetLeft + progressBar.offsetParent.offsetLeft)) / progressBar.offsetWidth;
+  watchedBar.style.width = Math.round(pos * 100) + '%';
+}
+
+const mouseUpListener = (event) => {
+  document.removeEventListener('mousemove', moveProgressBarWithMouse );
+  video.addEventListener('timeupdate',updateTimeRemaining);
+  document.body.removeEventListener('mouseup', goToTimeByMouseX);
+  document.body.removeEventListener('mouseup', mouseUpListener );
+}
+
+playhead.addEventListener('mousedown', (event) => {
+  document.body.addEventListener('mouseup', goToTimeByMouseX);
+  document.body.addEventListener('mouseup', mouseUpListener);
+  video.removeEventListener('timeupdate',updateTimeRemaining);
+  document.addEventListener('mousemove', moveProgressBarWithMouse);
 });
+
+
 
 playPauseButton.addEventListener('click', togglePlayPause);
 
